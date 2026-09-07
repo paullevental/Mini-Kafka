@@ -1,0 +1,32 @@
+# Markdown — ignore everything except the README.
+# Covers CLAUDE.md, learning.md, protocol.md, mini-kafka-7day.md.
+*.md
+!README.md
+
+# Claude Code
+.claude/
+.claude.json
+.claude.json.backup
+
+# Personal drafts
+Draft_Resume*
+
+# Java build output
+target/
+
+# Broker data files — created on demand by Log's constructor
+data/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# macOS
+.DS_Store
+
+# Editors
+.idea/
+*.iml
+.vscode/
