@@ -49,7 +49,3 @@ Replication, consumer groups and rebalancing, exactly-once semantics, log compac
 - **Blocking I/O, one virtual thread per connection.** No NIO and no selectors — virtual threads make thread-per-connection cheap enough that the complexity buys nothing.
 - **Custom binary protocol** over raw TCP. A 4-byte length prefix frames each request; see `protocol.md`.
 - **Records carry a CRC32**, which is what makes crash recovery possible: on restart, the first record whose checksum fails is where the process died.
-
-## Status
-
-Day 1 of a 7-day build. Working end to end with a flat-file log and a validated record format. Segments, offset indexing, durability modes, and crash recovery are next.

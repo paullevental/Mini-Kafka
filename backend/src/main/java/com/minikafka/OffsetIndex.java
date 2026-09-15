@@ -20,9 +20,11 @@ public class OffsetIndex {
 
     public OffsetIndex(Path dir, int maxBytes, long baseOffset, int interval) throws IOException {
         Path file = dir.resolve(String.format("%020d.index", baseOffset));
-        this.maxEntries = (maxBytes / interval) ;
+        this.maxEntries = (maxBytes / interval);
         this.fileChannel = FileChannel.open(file,StandardOpenOption.READ, StandardOpenOption.WRITE, StandardOpenOption.CREATE);
+        this.entryCount = (int) (fileChannel.size() / 8);
         this.buffer = fileChannel.map(FileChannel.MapMode.READ_WRITE, 0, maxEntries * 8);
+        this.lastIndexedPosition = entryCount > 0 ? buffer.getInt((entryCount - 1) * 8 + 4) : 0;
         this.baseOffset = baseOffset;
         this.interval = interval;
     }
@@ -40,7 +42,6 @@ public class OffsetIndex {
 
 
     public int lookup(long offset) {
-
         int low = 0;
         int high = entryCount - 1;
         int delta = (int) (offset - this.baseOffset);

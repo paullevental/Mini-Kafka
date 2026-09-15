@@ -19,6 +19,18 @@ public class Record {
         this.value = value;
     }
 
+    public long offset() {
+        return offset;
+    }
+
+    public byte[] key() {
+        return key;
+    }
+
+    public byte[] value() {
+        return value;
+    }
+
     public byte[] serialize() {
         CRC32 crc32 = new CRC32();
         int valueLength = value.length;
@@ -38,6 +50,10 @@ public class Record {
         buffer.putInt(4, (int) crc32.getValue());
         byte[] res = buffer.array();
         return res;
+    }
+
+    public int serializedSize() {
+        return 32 + (key == null ? 0 : key.length) + value.length;
     }
 
     public static Record deserialize(ByteBuffer buffer) {
