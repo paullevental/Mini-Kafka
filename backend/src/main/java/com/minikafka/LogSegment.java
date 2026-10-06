@@ -30,6 +30,8 @@ public class LogSegment {
         this.index = new OffsetIndex(dir, maxBytes, baseOffset, INTERVAL);
     }
 
+
+    // appends record to file channel and returns assigned offset
     public synchronized long append(Record r) throws IOException{
         int startPosition = (int) position;
         if (startPosition + r.serializedSize() > maxBytes) return -1;
@@ -85,6 +87,14 @@ public class LogSegment {
         flush();
         index.resizeOnClose();
         fileChannel.close();
+    }
+
+    public long getBaseOffset() {
+        return this.baseOffset;
+    }
+
+    public long getNextOffset() {
+        return this.nextOffset;
     }
 
     public long recoverAndTruncate() throws IOException {
