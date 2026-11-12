@@ -25,25 +25,30 @@ public class PartitionManager {
             Files.createDirectories(dataDir);
             try (DirectoryStream<Path> stream = Files.newDirectoryStream(dataDir)) {
                 for (Path p : stream) {
-                    if (!Files.isDirectory(p)) continue;
-                    String fileName = p.getFileName().toString();
-                    int index = fileName.lastIndexOf("-");
-                    if (index <= 0) {
-                        System.err.println("skipping non-partition directory: " + fileName);
-                        continue;
-                    }
-                    try {
-                        String topic = fileName.substring(0, index);
-                        int position = Integer.parseInt(fileName.substring(index + 1));
-                        TopicPartition topicPartition = new TopicPartition(topic, position);
-                        this.partitions.put(topicPartition, new Partition(p, this.maxBytes));
-                    } catch (IOException | NumberFormatException e) {
-                        System.err.println("skipping " + fileName + ": " + e);
+                    if (Files.isDirectory(p)) {
+                        loadPartition(p);   
                     }
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void loadPartition(Path p) {
+        String fileName = p.getFileName().toString();
+        int index = fileName.lastIndexOf("-");
+        if (index <= 0) {
+            System.err.println("skipping non-partition directory: " + fileName);
+            return;
+        }
+        try {
+            String topic = fileName.substring(0, index);
+            int position = Integer.parseInt(fileName.substring(index + 1));
+            TopicPartition topicPartition = new TopicPartition(topic, position);
+            this.partitions.put(topicPartition, new Partition(p, this.maxBytes));
+        } catch (IOException | NumberFormatException e) {
+            System.err.println("skipping " + fileName + ": " + e);
         }
     }
 
