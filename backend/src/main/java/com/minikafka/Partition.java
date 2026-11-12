@@ -8,19 +8,15 @@ import java.util.List;
 
 public class Partition {
     private List<LogSegment> logSegments;
-    private int position;
     private int maxBytes;
-    private String topic;
     private Path dir;
 
-    public Partition(Path dir, String topic, int position, int maxBytes) throws IOException {
+    public Partition(Path dir, int maxBytes) throws IOException {
         this.logSegments = new ArrayList<>();
         Files.createDirectories(dir);
         LogSegment logSegment = new LogSegment(dir, 0, maxBytes);
         this.logSegments.add(logSegment);
-        this.position = position;
         this.maxBytes = maxBytes;
-        this.topic = topic;
         this.dir = dir;
     }
 
@@ -44,10 +40,24 @@ public class Partition {
         logSegments.getLast().flush();
         return offset;
     }
-    // not yet implemented
-    // public synchronized FetchResult read(long offset, int maxBytes) {
-    //     return null;
-    // }
+
+    public synchronized FetchResult read(long offset, int maxFetchBytes) throws IOException {
+        
+        LogSegment readSegment = null;
+        
+        for (LogSegment segment : logSegments) {
+            if ((segment.getBaseOffset()) <= offset) {
+                readSegment = segment;
+            }
+        }
+        if (readSegment == null) {
+            throw new IllegalArgumentException("no valid offset found");
+        }   
+
+        List<Record> records = readSegment.read(offset, maxFetchBytes);
+        FetchResult result = new FetchResult(records, latestOffset());  
+        return result;
+    }
     
     public long earliestOffset() {
         return logSegments.getFirst().getBaseOffset(); 
@@ -67,5 +77,15 @@ public class Partition {
             logSegments.add(segment);
         }
         return newOffset;
+    }
+
+    public void close() {
+        for (LogSegment logSegment : logSegments) {
+            try {
+                logSegment.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

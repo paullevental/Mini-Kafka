@@ -2,6 +2,7 @@
 # Covers CLAUDE.md, learning.md, protocol.md, mini-kafka-7day.md.
 *.md
 !README.md
+notes.md
 
 # Claude Code
 .claude/
